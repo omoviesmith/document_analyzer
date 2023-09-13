@@ -2,16 +2,23 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect
 from werkzeug.utils import secure_filename
+import boto3
+from botocore.exceptions import NoCredentialsError
 import os
 from PyPDF2 import PdfReader
 from textblob import TextBlob
 import docx2txt
 import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env.
 
 
 app = Flask(__name__) 
 
 # Configure database
+app.config['S3_BUCKET'] = 'forsentiments'
+app.config['S3_URL'] = 'https://s3.amazonaws.com/forsentiments'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///documents.db'
 app.config['UPLOAD_FOLDER'] = 'C:\\Users\\Smith\\Postman\\files'
 
@@ -51,11 +58,16 @@ def get_document(document_id):
         'name': document.name,
         'content': document.content
     }
+
+    filename = document.name
+    file_url = f"{app.config['S3_URL']}/{filename}"
+    return jsonify({'id': document.id, 'name': document.name, 'content': document.content, 'file_url': file_url})
     
-    return jsonify(response)
+    #return jsonify(response)
 
 @app.route('/api/documents', methods=['POST'])
 def upload_document():
+
     if 'file' not in request.files:
         return jsonify({'error': 'No file part in the request.'}), 400
 
@@ -74,8 +86,14 @@ def upload_document():
     else:
         return jsonify({'error': 'Invalid file format.'}), 400
 
+    # filename = secure_filename(file.filename)
+    # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    s3 = boto3.client('s3')
+    bucket_name = app.config['S3_BUCKET']
     filename = secure_filename(file.filename)
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    s3.upload_fileobj(file, bucket_name, filename)
+    file_url = f"{app.config['S3_URL']}/{filename}"
+
 
     new_document = Document(name=filename, content=content)
     db.session.add(new_document)
@@ -119,8 +137,13 @@ def upload_dictionary():
         return jsonify({'error': 'Only CSV files allowed'}), 400
 
     filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(file_path)
+    s3 = boto3.client('s3')
+    bucket_name = app.config['S3_BUCKET']
+    s3.upload_fileobj(file, bucket_name, filename)
+
+
+    # file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    # file.save(file_path)
 
     # Load data into pandas dataframe
     dataframe = pd.read_csv(file_path)
@@ -171,6 +194,15 @@ def analyze_document(document_id):
     }
 
     return jsonify(response)
+@app.route('/files/<path:filename>', methods=['GET'])
+def download_file(filename):
+    s3 = boto3.client('s3')
+    bucket_name = app.config['S3_BUCKET']
+    try:
+        s3.download_file(bucket_name, filename, f'/tmp/{filename}')
+        return send_from_directory('/tmp', filename, as_attachment=True)
+    except NoCredentialsError:
+        return jsonify({'error': 'AWS credentials not found.'}), 500
 
 if __name__ == '__main__':
     with app.app_context():
