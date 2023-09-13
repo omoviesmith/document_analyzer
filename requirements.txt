@@ -22,5 +22,5 @@ textblob==0.17.1
 tqdm==4.66.1
 typing_extensions==4.7.1
 tzdata==2023.3
-Werkzeug==2.0.1
+Werkzeug==2.2.2
 gunicorn>=21.2.0
