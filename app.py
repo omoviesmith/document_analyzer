@@ -140,13 +140,14 @@ def upload_dictionary():
     s3 = boto3.client('s3')
     bucket_name = app.config['S3_BUCKET']
     s3.upload_fileobj(file, bucket_name, filename)
+    file_url = f"{app.config['S3_URL']}/{filename}"
 
 
     # file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     # file.save(file_path)
 
     # Load data into pandas dataframe
-    dataframe = pd.read_csv(file_path)
+    dataframe = pd.read_csv(file_url)
 
     inspector = inspect(db.engine)
     
