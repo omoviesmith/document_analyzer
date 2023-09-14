@@ -159,7 +159,7 @@ def upload_dictionary():
 
     # insert dataframe into the table
     # dataframe.to_sql('sentiment_dictionary', db.engine, index=False, if_exists='replace')
-    dataframe.to_sql('sentiment_dictionary', index_label='id', con=db.engine, if_exists='append', index=False)
+    dataframe.to_sql('sentiment_dictionary', con=db.engine, if_exists='replace', index=False)
 
     return jsonify({'message': 'Sentiment dictionary uploaded successfully'}), 201
 
