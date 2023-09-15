@@ -7,15 +7,16 @@ WORKDIR /app
 # Add the current directory contents into the container at /app
 ADD . /app
 
-# Download nltk data
-# RUN python -m nltk.downloader punkt
-RUN python -m textblob.download_corpora
-
 # Upgrade pip to the latest version
 RUN pip install --no-cache-dir --upgrade pip
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Download nltk data
+RUN python -m nltk.downloader punkt
+RUN python -m textblob.download_corpora
+
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
