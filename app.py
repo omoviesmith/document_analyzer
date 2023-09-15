@@ -31,8 +31,7 @@ class Document(db.Model):
     content = db.Column(db.Text, nullable=True) 
 
 class SentimentDictionary(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    Word = db.Column(db.String(120), nullable=True)
+    Word = db.Column(db.String(120), nullable=True, primary_key=True)
     Seq_num = db.Column(db.Integer, default=0)
     Word_Count = db.Column(db.Integer, default=0)
     Word_Proportion = db.Column(db.Float, default=0)
@@ -159,7 +158,8 @@ def upload_dictionary():
 
     # insert dataframe into the table
     # dataframe.to_sql('sentiment_dictionary', db.engine, index=False, if_exists='replace')
-    dataframe.to_sql('sentiment_dictionary', con=db.engine, if_exists='replace', index=False)
+    # dataframe.to_sql('sentiment_dictionary', con=db.engine, if_exists='replace', index=False)
+    dataframe.to_sql('sentiment_dictionary', db.engine, if_exists='replace', index=True)
 
     return jsonify({'message': 'Sentiment dictionary uploaded successfully'}), 201
 
@@ -170,7 +170,7 @@ def analyze_document(document_id):
     if document.content is None:
         return jsonify({'error': 'Document content is empty.'}), 400
 
-    sentiment_dictionary = SentimentDictionary.query.all()
+    sentiment_dictionary = db.session.query(SentimentDictionary).all()
 
     positive_words = []
     negative_words = []
