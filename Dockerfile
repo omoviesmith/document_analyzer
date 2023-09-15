@@ -7,7 +7,8 @@ WORKDIR /app
 # Add the current directory contents into the container at /app
 ADD . /app
 
-# install textblob
+# Download nltk data
+RUN python -m nltk.downloader punkt
 RUN python -m textblob.download_corpora
 
 # Upgrade pip to the latest version
