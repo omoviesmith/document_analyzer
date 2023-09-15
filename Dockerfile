@@ -7,6 +7,9 @@ WORKDIR /app
 # Add the current directory contents into the container at /app
 ADD . /app
 
+# install textblob
+RUN python -m textblob.download_corpora
+
 # Upgrade pip to the latest version
 RUN pip install --no-cache-dir --upgrade pip
 
