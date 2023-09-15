@@ -195,6 +195,14 @@ def analyze_document(document_id):
     }
 
     return jsonify(response)
+
+
+@app.route('/api/documents/ids', methods=['GET'])
+def get_document_ids():
+    documents = Document.query.all()
+    document_names = [doc.name for doc in documents]
+    return jsonify(document_names)
+
 @app.route('/files/<path:filename>', methods=['GET'])
 def download_file(filename):
     s3 = boto3.client('s3')
