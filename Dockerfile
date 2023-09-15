@@ -8,7 +8,7 @@ WORKDIR /app
 ADD . /app
 
 # Download nltk data
-RUN python -m nltk.downloader punkt
+# RUN python -m nltk.downloader punkt
 RUN python -m textblob.download_corpora
 
 # Upgrade pip to the latest version
