@@ -154,7 +154,9 @@ def upload_dictionary():
     SentimentDictionary.__table__.create(db.engine)
 
     # insert dataframe into the table
-    dataframe.to_sql('sentiment_dictionary', con=db.engine, if_exists='replace', index=False)
+    # dataframe.to_sql('sentiment_dictionary', con=db.engine, if_exists='replace', index=False)
+    dataframe.index.name = 'id'
+    dataframe.to_sql('sentiment_dictionary', db.engine, if_exists='replace', index=True, index_label='id')
 
     return jsonify({'message': 'Sentiment dictionary uploaded successfully'}), 201
 
