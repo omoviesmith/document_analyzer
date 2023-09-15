@@ -11,11 +11,13 @@ from textblob import TextBlob
 import docx2txt
 import pandas as pd
 from dotenv import load_dotenv
+from flask_cors import CORS
 
 load_dotenv()  # take environment variables from .env.
 
 
 app = Flask(__name__) 
+CORS(app) # enable CORS
 
 # Configure database
 app.config['S3_BUCKET'] = 'forsentiments'
