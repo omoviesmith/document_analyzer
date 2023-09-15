@@ -204,6 +204,10 @@ def download_file(filename):
         return send_from_directory('/tmp', filename, as_attachment=True)
     except NoCredentialsError:
         return jsonify({'error': 'AWS credentials not found.'}), 500
+        
+with app.app_context():
+    # Perform database operations here, such as db.create_all()
+    db.create_all()
 
 if __name__ == '__main__':
     with app.app_context():
