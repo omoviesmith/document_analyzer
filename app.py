@@ -31,7 +31,8 @@ class Document(db.Model):
     content = db.Column(db.Text, nullable=True) 
 
 class SentimentDictionary(db.Model):
-    Word = db.Column(db.String(120), nullable=True, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    Word = db.Column(db.String(120), nullable=True)
     Seq_num = db.Column(db.Integer, default=0)
     Word_Count = db.Column(db.Integer, default=0)
     Word_Proportion = db.Column(db.Float, default=0)
@@ -141,25 +142,19 @@ def upload_dictionary():
     s3.upload_fileobj(file, bucket_name, filename)
     file_url = f"{app.config['S3_URL']}/{filename}"
 
-
-    # file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    # file.save(file_path)
-
     # Load data into pandas dataframe
     dataframe = pd.read_csv(file_url)
-
+    dataframe = dataframe.fillna(0) #fill nan with 0
     inspector = inspect(db.engine)
-    
+
     if 'sentiment_dictionary' in inspector.get_table_names():
         SentimentDictionary.__table__.drop(db.engine)
 
-    # create the table 
+    # create the table
     SentimentDictionary.__table__.create(db.engine)
 
     # insert dataframe into the table
-    # dataframe.to_sql('sentiment_dictionary', db.engine, index=False, if_exists='replace')
-    # dataframe.to_sql('sentiment_dictionary', con=db.engine, if_exists='replace', index=False)
-    dataframe.to_sql('sentiment_dictionary', db.engine, if_exists='replace', index=True)
+    dataframe.to_sql('sentiment_dictionary', con=db.engine, if_exists='replace', index=False)
 
     return jsonify({'message': 'Sentiment dictionary uploaded successfully'}), 201
 
@@ -170,7 +165,7 @@ def analyze_document(document_id):
     if document.content is None:
         return jsonify({'error': 'Document content is empty.'}), 400
 
-    sentiment_dictionary = db.session.query(SentimentDictionary).all()
+    sentiment_dictionary = SentimentDictionary.query.all()
 
     positive_words = []
     negative_words = []
