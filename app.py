@@ -6,6 +6,7 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 import os
 from PyPDF2 import PdfReader
+import nltk
 from textblob import TextBlob
 import docx2txt
 import pandas as pd
