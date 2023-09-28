@@ -20,7 +20,7 @@ app = Flask(__name__)
 CORS(app) # enable CORS
 
 # Configure database
-app.config['S3_BUCKET'] = 'forsentiments'
+app.config['S3_BUCKET'] = 'fortunasentiment'
 app.config['S3_URL'] = 'https://s3.amazonaws.com/forsentiments'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///documents.db'
 app.config['UPLOAD_FOLDER'] = 'C:\\Users\\Smith\\Postman\\files'
