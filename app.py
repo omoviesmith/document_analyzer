@@ -17,7 +17,8 @@ load_dotenv()  # take environment variables from .env.
 
 
 app = Flask(__name__) 
-CORS(app) # enable CORS
+#CORS(app) # enable CORS
+CORS(app, resources={r'/*': {'origins': '*'}})
 
 # Configure database
 app.config['S3_BUCKET'] = 'fortunasentiment'
